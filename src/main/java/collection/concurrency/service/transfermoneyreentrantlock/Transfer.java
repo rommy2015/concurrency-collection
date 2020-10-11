@@ -50,7 +50,11 @@ public class Transfer {
                         } finally {
                             accountTo.getLock().unlock();
                         }
+                    }else {
+                        accountTo.incrementFailedTransferCounter();
                     }
+                } else {
+                    accountFrom.incrementFailedTransferCounter();
                 }
             } catch (InterruptedException e) {
                 LOGGER.error("Время ожидания попытки" +
@@ -64,5 +68,8 @@ public class Transfer {
     public static void showBalance(Account accountFrom, Account accountTo) {
         LOGGER.warn("Баланс accountFrom: " + accountFrom.getBalance());
         LOGGER.warn("Баланс accountTo: " + accountTo.getBalance());
+        System.out.println();
+        LOGGER.warn("Счетчик неудачных попыток начала транзакции для `accountFrom` :" + accountFrom.getFailCounter() );
+        LOGGER.warn("Счетчик неудачных попыток начала транзакции для `accountTo` :" + accountTo.getFailCounter() );
     }
 }
