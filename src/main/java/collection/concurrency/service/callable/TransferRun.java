@@ -6,21 +6,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TransferRun {
 
-    public static void main(String[] args) {
+    private final static long timeout = 100000;
+    private final static TimeUnit unit = TimeUnit.SECONDS;
+
+    public static void main(String[] args) throws InterruptedException {
 
         Account accountFrom = new Account(1000);
 
         Account accountTo = new Account(2000);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ScheduledExecutorService scheduledExecutorService =
+                runScheduleForGettingFailedLocking(accountFrom, accountTo);
 
-        long timeout = 100000;
-        TimeUnit unit = TimeUnit.SECONDS;
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         Random random = new Random();
 
@@ -37,10 +41,9 @@ public class TransferRun {
                     transfersFutureList.add(booleanFuture);
                 });
 
-
-
         executorService.shutdown();
 
+        runScheduleForGettingFailedLocking(accountFrom, accountTo);
 
         /*указываем, сколько времени нужно ждать,
         чтобы все потоки смогли выполниться  */
@@ -50,9 +53,42 @@ public class TransferRun {
             e.printStackTrace();
         }
 
+        scheduledExecutorService.shutdown();
+
         showResultFromCallable(transfersFutureList);
     }
 
+    private static ScheduledExecutorService runScheduleForGettingFailedLocking(Account accountFrom, Account accountTo) throws InterruptedException {
+
+        ScheduledExecutorService scheduledExecutorService  =
+                Executors.newScheduledThreadPool(2);
+
+        Thread threadAccountFrom = new Thread(() -> {
+            AtomicInteger failCounter = accountFrom.getFailCounter();
+            System.out.println("Количество неудачных попыток захвата монитора для `accountFrom`:"
+                    + failCounter);
+        });
+
+        scheduledExecutorService
+                .scheduleAtFixedRate(threadAccountFrom, 1, 2, TimeUnit.SECONDS);
+
+        Thread threadAccountTo = new Thread(() -> {
+            AtomicInteger failCounter = accountTo.getFailCounter();
+            System.out.println("Количество неудачных попыток захвата монитора для `accountTo`:"
+                    + failCounter);
+        });
+
+
+        scheduledExecutorService
+                .scheduleAtFixedRate(threadAccountTo, 1, 2, TimeUnit.SECONDS);
+
+        scheduledExecutorService.shutdown();
+
+
+        scheduledExecutorService.awaitTermination(timeout, unit);
+
+       return scheduledExecutorService;
+    }
 
     private static void showResultFromCallable(List< Future<Boolean>> transfersFutureList) {
 
