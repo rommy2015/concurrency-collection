@@ -30,7 +30,7 @@ public class TransferRun {
 
         List<Future<Boolean>> transfersFutureList = new ArrayList<>();
 
-        IntStream.range(0, 10)
+        IntStream.range(0, 100)
                 .forEach(i -> {
 
                     int sumForTransfer = random.nextInt(400);
@@ -40,6 +40,7 @@ public class TransferRun {
 
                     transfersFutureList.add(booleanFuture);
                 });
+
 
         executorService.shutdown();
 
@@ -52,8 +53,6 @@ public class TransferRun {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        scheduledExecutorService.shutdown();
 
         showResultFromCallable(transfersFutureList);
     }
@@ -82,8 +81,9 @@ public class TransferRun {
         scheduledExecutorService
                 .scheduleAtFixedRate(threadAccountTo, 1, 2, TimeUnit.SECONDS);
 
-        scheduledExecutorService.shutdown();
+        Thread.sleep(20000);
 
+        scheduledExecutorService.shutdown();
 
         scheduledExecutorService.awaitTermination(timeout, unit);
 
