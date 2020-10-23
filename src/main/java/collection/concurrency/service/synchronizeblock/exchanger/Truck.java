@@ -48,8 +48,10 @@ public class Truck <V>  implements Runnable  {
             e.printStackTrace();
         }
 
-        /*пока другой поток вызовет exchange(), после этого произойдет обмен посылками*/
-        System.out.printf("В грузовик №%d переместили посылку для пункта %s.\n", numberTruck, destination);
+        /*пока другой поток вызовет exchange(),
+        после этого произойдет обмен посылками*/
+        System.out.printf("В грузовик №%d переместили посылку для пункта %s.\n",
+                numberTruck, destination);
 
         long milliSecondsSecond = 1000 + (long) Math.random() * 5000;
         try {
