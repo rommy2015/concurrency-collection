@@ -1,4 +1,4 @@
-package collection.concurrency.service.synchronizeblock.exchanger;
+package collection.concurrency.service.synchronizeblock.exchanger.trucks;
 import java.util.concurrent.Exchanger;
 
 public class Truck <V>  implements Runnable  {
