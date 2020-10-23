@@ -19,7 +19,7 @@ public class MakeString implements Runnable {
         this.exchanger = exchanger;
         this.string = string;
 
-        new Thread(this).start();
+        new Thread(this::run).start();
     }
 
     @Override
