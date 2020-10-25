@@ -12,10 +12,8 @@ public class UseString implements Runnable {
     Exchanger<String> exchanger;
     String string;
 
-    public UseString(Exchanger<String> exchanger, String string) {
+    public UseString(Exchanger<String> exchanger) {
         this.exchanger = exchanger;
-        this.string = string;
-
         new Thread(this::run).start();
     }
 
